@@ -1,30 +1,28 @@
 import random
 from random import randrange as rand
 
-def BubbleSort(v):
-    n = len(v)
+
+def BubbleSort(arr):
+    n = len(arr)
     for i in range(n):
         for j in range(n - 1):
-            if v[j] > v[j + 1]:
-                v[j], v[j + 1] = v[j + 1], v[j]
-    return v
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
 
 
 def CountSort(arr):
     n = len(arr)
-    output = [0] * n
-    count = [0] * n
-    ans = []
+    out = [0] * n
+    c = [0] * 1000000
     for i in arr:
-        count[ord(i)] += 1
-    for i in range(256):
-        count[i] += count[i - 1]
-    for i in range(len(arr)):
-        output[count[ord(arr[i])] - 1] = arr[i]
-        count[ord(arr[i])] -= 1
-    for i in range(len(arr)):
-        ans[i] = output[i]
-    return ans
+        c[i] += 1
+    for i in range(1, 1000000):
+        c[i] += c[i - 1]
+    for i in arr:
+        out[c[i] - 1] = i
+        c[i] -= 1
+    return out
 
 
 def Interclasare(lst, ldr):
@@ -56,8 +54,14 @@ def MergeSort(ls):
 
 
 def partitierandom(arr, st, dr):
-    n = random.randint(st, dr)
-    piv = arr[n]
+    pivot = arr[dr]
+    i = st - 1
+    for x in range(st, dr):
+        if arr[x] <= pivot:
+            i += 1
+            arr[i], arr[x] = arr[x], arr[i]
+    arr[i + 1], arr[dr] = arr[dr], arr[i + 1]
+    return i + 1
 
 
 def QuickSort(arr, st, dr):
@@ -65,25 +69,7 @@ def QuickSort(arr, st, dr):
         p = partitierandom(arr, st, dr)
         QuickSort(arr, st, p - 1)
         QuickSort(arr, p + 1, dr)
-
-
-def partitiemed3(arr, st, dr):
-    n = (st + dr) // 2
-    if arr[st] <= arr[n] <= arr[dr] or arr[dr] <= arr[n] <= arr[st]:
-        piv = arr[n]
-    elif arr[n] <= arr[st] <= arr[dr] or arr[dr] <= arr[st] <= arr[n]:
-        piv = arr[st]
-        n = st
-    else:
-        piv = arr[dr]
-        n = dr
-
-
-def QuickSort2(arr, st, dr):
-    if st < dr:
-        p = partitiemed3(arr, st, dr)
-        QuickSort2(arr, st, p - 1)
-        QuickSort2(arr, p + 1, dr)
+    return arr
 
 
 def radixsort(arr):
@@ -125,7 +111,7 @@ def RadixSort_b2(arr, k):
     return RadixSort_b2(s, k + 1)
 
 
-def test(arr):
+def teste(arr):
     ok = 1
     n = len(arr)
     for i in range(n - 1):
@@ -135,6 +121,7 @@ def test(arr):
 
 
 import time
+import copy
 
 f = open("sort.in")
 nr = int(f.readline())
@@ -159,69 +146,60 @@ for l in f:
     if len(lista) > 10000:
         print("Nu se poate aplica bubble sort pt aceste numere")
     else:
-        sort = BubbleSort(lista)
+        sort = copy.deepcopy(lista)
+        BubbleSort(sort)
         final = time.time()
-        if test(sort):
+        if teste(sort):
             print("Bubble sort pt {} numere mai mici decat {} in {} secunde".format(n, m, final - start))
 
     # count sort
     start = time.time()
     sort = CountSort(lista)
     final = time.time()
-    if test(sort):
+    if teste(sort) == 0:
         print("Nu se poate aplica count sort pt aceste numere")
         if final - start > 5:
             print("dureaza prea mult.")
-        else:
-            print(str(final - start) + " secunde")
+    else:
+        print("Counting sort pt {} numere mai mici decat {} in {} secunde".format(n, m, final - start))
 
     # merge sort
     start = time.time()
     sort = MergeSort(lista)
     final = time.time()
-    if test(sort):
+    if teste(sort) == 0:
         print("Nu se poate aplica merge sort pt aceste numere")
         if final - start > 5:
             print("dureaza prea mult.")
-        else:
-            print(str(final - start) + " secunde")
+    else:
+        print("Merge sort pt {} numere mai mici decat {} in {} secunde".format(n, m, final - start))
 
-    #quicksort
+    # quicksort
+    sort = copy.deepcopy(lista)
     start = time.time()
-    s = QuickSort(lista)
+    sort = QuickSort(sort, 0, n - 1)
     final = time.time()
-    if test(s):
+    if teste(sort) == 0:
         print("Nu se poate aplica quick sort pt aceste numere")
         if final - start > 5:
             print("dureaza prea mult.")
-        else:
-            print(str(final - start) + " secunde")
+    else:
+        print("Quick sort pt {} numere mai mici decat {} in {} secunde".format(n, m, final - start))
 
-    ### quick sort mm
-    start = time.time()
-    s = QuickSort2(lista)
-    final = time.time()
-    if test(s):
-        print("quick sort in pivot mediana din 3 pentru {} numere mai mici decat {}:".format(n, m), end=" ")
-        if final - start > 5:
-            print("dureaza prea mult.")
-        else:
-            print(str(final - start) + " secunde")
     # radix sort b2
     start = time.time()
     s = RadixSort_b2(lista, 0)
     final = time.time()
-    if test(s):
+    if teste(s) == 0:
         print("Nu se poate aplica radix sort pt aceste numere")
         if final - start > 5:
             print("dureaza prea mult.")
-        else:
-            print(str(final - start) + " secunde")
+    else:
+        print("Radix sort pt {} numere mai mici decat {} in {} secunde".format(n, m, final - start))
 
     # sort
     start = time.time()
-    s = sorted(v)
+    s = sorted(lista)
     final = time.time()
-    if test(s):
-        print("sort pentru {} numere mai mici decat {}: {} secunde".format(n, m, final - start))
-
+    if teste(s):
+        print("Sort pentru {} numere mai mici decat {}: {} secunde".format(n, m, final - start))
